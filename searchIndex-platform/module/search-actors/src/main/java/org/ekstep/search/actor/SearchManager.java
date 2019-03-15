@@ -351,15 +351,15 @@ public class SearchManager extends SearchBaseActor {
 	}
 
 	private Integer getLimitValue(Object limit) {
-		int i = 100;
-		if (null != limit) {
-			try {
-				i = (int) limit;
-			} catch (Exception e) {
-				i = new Long(limit.toString()).intValue();
-			}
-		}
-		return i;
+//		int i = 100;
+//		if (null != limit) {
+//			try {
+//				i = (int) limit;
+//			} catch (Exception e) {
+//				i = new Long(limit.toString()).intValue();
+//			}
+//		}
+//		return i;
 	}
 
 	private List<Map<String, Object>> getSearchQueryProperties(String queryString, List<String> fields) {

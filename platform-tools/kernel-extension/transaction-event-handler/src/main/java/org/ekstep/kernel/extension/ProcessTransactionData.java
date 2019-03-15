@@ -68,7 +68,7 @@ public class ProcessTransactionData {
 		String userId = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.USER_ID.name());
 		String requestId = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.REQUEST_ID.name());
 		List<Map<String, Object>> messageMap = new ArrayList<Map<String, Object>>();
-		messageMap.addAll(getCretedNodeMessages(data, graphDb, userId, requestId));
+		messageMap.addAll(getCreatedNodeMessages(data, graphDb, userId, requestId));
 		messageMap.addAll(getUpdatedNodeMessages(data, graphDb, userId, requestId));
 		messageMap.addAll(getDeletedNodeMessages(data, graphDb, userId, requestId));
 		messageMap.addAll(getAddedTagsMessage(data, graphDb, userId, requestId));
@@ -78,7 +78,7 @@ public class ProcessTransactionData {
 		return messageMap;
 	}
 
-	private List<Map<String, Object>> getCretedNodeMessages(TransactionData data, GraphDatabaseService graphDb,
+	private List<Map<String, Object>> getCreatedNodeMessages(TransactionData data, GraphDatabaseService graphDb,
 			String userId, String requestId) {
 		List<Map<String, Object>> lstMessageMap = new ArrayList<Map<String, Object>>();
 		try {

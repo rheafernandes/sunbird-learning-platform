@@ -7,8 +7,8 @@ import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 
-import org.ekstep.common.logger.LoggerEnum;
-import org.ekstep.common.logger.PlatformLogger;
+//import org.ekstep.common.logger.LoggerEnum;
+//import org.ekstep.common.logger.PlatformLogger;
 
 public class TestSamzaService implements ISamzaService {
 
@@ -21,7 +21,7 @@ public class TestSamzaService implements ISamzaService {
 	@Override
 	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
 		
-			PlatformLogger.log("Message received: "+ message, null, LoggerEnum.INFO.name());
+//			PlatformLogger.log("Message received: "+ message, null, LoggerEnum.INFO.name());
 			System.out.println("Printing the message received: " + message);
 		
 	}

@@ -27,6 +27,7 @@
 		<module>image-tagging</module>
 		<module>distribution</module>
 		<module>qrcode-image-generator</module>
+		<module>neo4j-indexer</module>
   </modules>
 
 	<build>
