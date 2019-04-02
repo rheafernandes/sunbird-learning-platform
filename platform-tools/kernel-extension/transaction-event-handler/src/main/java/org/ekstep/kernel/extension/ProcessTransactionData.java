@@ -71,10 +71,10 @@ public class ProcessTransactionData {
 		messageMap.addAll(getCreatedNodeMessages(data, graphDb, userId, requestId));
 		messageMap.addAll(getUpdatedNodeMessages(data, graphDb, userId, requestId));
 		messageMap.addAll(getDeletedNodeMessages(data, graphDb, userId, requestId));
-		messageMap.addAll(getAddedTagsMessage(data, graphDb, userId, requestId));
 		messageMap.addAll(getRemovedTagsMessage(data, graphDb, userId, requestId));
-		messageMap.addAll(getAddedRelationShipMessages(data, userId, requestId));
+		messageMap.addAll(getAddedTagsMessage(data, graphDb, userId, requestId));
 		messageMap.addAll(getRemovedRelationShipMessages(data, userId, requestId));
+		messageMap.addAll(getAddedRelationShipMessages(data, userId, requestId));
 		return messageMap;
 	}
 

@@ -20,7 +20,6 @@ public class DefinitionDTO implements Serializable {
     private List<RelationDefinition> outRelations;
     private List<TagDefinition> systemTags;
     private Map<String, Object> metadata;
-
     public String getIdentifier() {
         return identifier;
     }

@@ -24,6 +24,11 @@ public class Neo4jIndexerTask implements StreamTask, InitableTask, WindowableTas
     private ISamzaService service;
     private ControllerUtil controllerUtil;
 
+    public Neo4jIndexerTask(Config config, TaskContext taskContext) throws Exception{
+        init(config,taskContext);
+    }
+
+
     @Override
     public void init(Config config, TaskContext taskContext) throws Exception {
         try {

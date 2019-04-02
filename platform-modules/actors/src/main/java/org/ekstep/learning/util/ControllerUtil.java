@@ -8,6 +8,7 @@ import org.ekstep.common.Platform;
 import org.ekstep.common.dto.NodeDTO;
 import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
+import org.ekstep.common.enums.TaxonomyErrorCodes;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ResourceNotFoundException;
 import org.ekstep.common.exception.ResponseCode;
@@ -85,6 +86,14 @@ public class ControllerUtil extends BaseLearningManager {
 	 */
 	public Response updateNode(Node node) {
 		Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+		updateReq.put(GraphDACParams.node.name(), node);
+		updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+		Response updateRes = getResponse(updateReq);
+		return updateRes;
+	}
+
+	public Response deleteNode(Node node) {
+		Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "deleteDataNode");
 		updateReq.put(GraphDACParams.node.name(), node);
 		updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
 		Response updateRes = getResponse(updateReq);
@@ -236,7 +245,7 @@ public class ControllerUtil extends BaseLearningManager {
 	}
 
 	public Response getHirerachy(String identifier) {
-		String url = Platform.config.getString("platform-api-url") + "/content/v3/hierarchy/" + identifier;
+		String url = Platform.config.getString("platform-api-url") + "/content/v3/hierarchy/" + identifier + "?mode=edit";
 		Response hirerachyRes = null;
 		try {
 			String result = HTTPUtil.makeGetRequest(url);
@@ -678,4 +687,21 @@ public class ControllerUtil extends BaseLearningManager {
 		}
 	}
 
-}
+	public Response addDefinitionNode(DefinitionDTO dto){
+		Request updateReq = getRequest("domain", GraphEngineManagers.NODE_MANAGER, "saveDefinitionNode");
+		updateReq.put(GraphDACParams.definition_node.name(), dto);
+		updateReq.put(GraphDACParams.node_id.name(), dto.getIdentifier());
+		Response updateRes = getResponse(updateReq);
+		return updateRes;
+	}
+
+	public Response deleteDefinition(String id, String objectType) {
+		if (org.apache.commons.lang3.StringUtils.isBlank(id))
+			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
+		if (org.apache.commons.lang3.StringUtils.isBlank(objectType))
+			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_NULL_DEFINITION.name(), "Object Type is empty");
+		TelemetryManager.log("Delete Definition : " + id + " : Object Type : " + objectType);
+		Request request = getRequest(id, GraphEngineManagers.NODE_MANAGER, "deleteDefinition",
+				GraphDACParams.object_type.name(), objectType);
+		return getResponse(request);
+	}}

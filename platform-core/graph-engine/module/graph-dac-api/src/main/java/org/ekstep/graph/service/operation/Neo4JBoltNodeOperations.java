@@ -217,7 +217,7 @@ public class Neo4JBoltNodeOperations {
 		TelemetryManager.log("Consumer is Authorized for Node Id: " + node.getIdentifier());
 
 		TelemetryManager.log("Validating the Update Operation for Node Id: " + node.getIdentifier());
-		versionValidator.validateUpdateOperation(graphId, node);
+  		versionValidator.validateUpdateOperation(graphId, node);
 		String version = (String) node.getMetadata().get(GraphDACParams.versionKey.name());
 		if (!StringUtils.equalsIgnoreCase(
 				Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY), version)) {
