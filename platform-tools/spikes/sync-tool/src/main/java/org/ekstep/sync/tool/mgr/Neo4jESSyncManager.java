@@ -306,7 +306,7 @@ public class Neo4jESSyncManager implements ISyncManager {
 	    long eta = current == 0 ? 0 : 
 	        (total - current) * (System.currentTimeMillis() - startTime) / current;
 
-	    String etaHms = current == 0 ? "N/A" : 
+	    String etaHms = current == 0 ? "N/A" :
 	            String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(eta),
 	                    TimeUnit.MILLISECONDS.toMinutes(eta) % TimeUnit.HOURS.toMinutes(1),
 	                    TimeUnit.MILLISECONDS.toSeconds(eta) % TimeUnit.MINUTES.toSeconds(1));
