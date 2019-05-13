@@ -2,12 +2,14 @@ package org.ekstep.sync.tool.mgr;
 
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.Platform;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
+import org.ekstep.common.mgr.ConvertGraphNode;
 import org.ekstep.common.util.RequestValidatorUtil;
 import org.ekstep.graph.dac.model.Node;
 import org.ekstep.graph.model.node.DefinitionDTO;
@@ -42,50 +44,41 @@ public class CassandraESSyncManager {
     }
 
     public void syncByBookmarkId(String graphId, String resourceId, List<String> bookmarkIds) {
-        this.graphId = RequestValidatorUtil.isEmptyOrNull(graphId) ? "domain" :graphId;
+        this.graphId = RequestValidatorUtil.isEmptyOrNull(graphId) ? "domain" : graphId;
         Map<String, Object> hierarchy = getTextbookHierarchy(resourceId);
-        List<Map<String, Object>> units = new ArrayList<>();
-        if (hierarchy != null && !bookmarkIds.isEmpty())
+        if (MapUtils.isNotEmpty(hierarchy)) {
+            List<Map<String, Object>> units = new ArrayList<>();
             units.addAll(getUnitsMetadata(hierarchy, bookmarkIds));
-        List<String> failedUnits = new ArrayList<>();
-        failedUnits = getFailedUnitIds(units, bookmarkIds);
-        Map<String, Object> esDocs = new HashMap<>();
-        if (CollectionUtils.isNotEmpty(units))
-            esDocs = getESDocuments(units);
-        if (esDocs != null && !esDocs.isEmpty())
-            pushToElastic(esDocs);
-        if (!failedUnits.isEmpty())
-            printMessages("failed", failedUnits, resourceId);
+            List<String> failedUnits = getFailedUnitIds(units, bookmarkIds);
+            if (CollectionUtils.isNotEmpty(units)) {
+                if(CollectionUtils.isEmpty(bookmarkIds)) {
+                    Map<String, Object> tbMetaData = getTBMetaData(resourceId);
+                    if (MapUtils.isNotEmpty(tbMetaData))
+                        units.add(tbMetaData);
+                }
+                Map<String, Object> esDocs = getESDocuments(units);
+                if (MapUtils.isNotEmpty(esDocs))
+                    pushToElastic(esDocs);
+            }
+            if (!CollectionUtils.isEmpty(failedUnits))
+                printMessages("failed", failedUnits, resourceId);
+        } else
+            System.out.println("Resource is not a Textbook or Textbook is not live");
     }
 
 
     public Map<String, Object> getTextbookHierarchy(String resourceId) {
-        Map<String, Object> hierarchy = null;
+        Map<String, Object> hierarchy;
         if (RequestValidatorUtil.isEmptyOrNull(resourceId))
             throw new ClientException("BLANK_IDENTIFIER", "Identifier is blank.");
-//        if (validateTextBook(resourceId))
-//        hierarchy = hierarchyStore.getHierarchy(resourceId + ".img");
-
         hierarchy = hierarchyStore.getHierarchy(resourceId);
-//        else
-//            System.out.println("Resource is not a Textbook or Textbook is not live");
         return hierarchy;
     }
 
-    public Boolean validateTextBook(String resourceId) {
-        Node node = util.getNode(graphId, resourceId);
-        if (RequestValidatorUtil.isEmptyOrNull(node))
-            throw new ClientException("RESOURCE_NOT_FOUND", "Enter a Valid Textbook id");
-        if (StringUtils.isNotBlank((String) node.getMetadata().get("contentType"))
-                && StringUtils.equalsIgnoreCase("textbook", (String) node.getMetadata().get("contentType"))
-                && StringUtils.isNotBlank((String) node.getMetadata().get("status"))
-                && StringUtils.equalsIgnoreCase("live", (String) node.getMetadata().get("status")))
-            return true;
-        else
-            return false;
-    }
 
     public List<Map<String, Object>> getUnitsMetadata(Map<String, Object> hierarchy, List<String> bookmarkIds) {
+        if(CollectionUtils.isEmpty(bookmarkIds))
+            System.out.println("The whole TextBook will be synced");
         List<Map<String, Object>> childrenMaps = mapper.convertValue(hierarchy.get("children"), new TypeReference<List<Map<String, Object>>>() {
         });
         return getUnitsToBeSynced(childrenMaps, bookmarkIds);
@@ -95,9 +88,11 @@ public class CassandraESSyncManager {
         List<Map<String, Object>> unitsMetadata = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(children)) {
             children.forEach(child -> {
-                if (child.containsKey("children") && child.containsKey("contentType")
-                        && StringUtils.equalsIgnoreCase((String) child.get("contentType"), "textbookunit")) {
-                    if (bookmarkIds.contains(child.get("identifier")))
+                if (child.containsKey("children") && child.containsKey("visibility")
+                        && StringUtils.equalsIgnoreCase((String) child.get("visibility"), "Parent")) {
+                    if (CollectionUtils.isEmpty(bookmarkIds))
+                        unitsMetadata.add(child);
+                    else if (bookmarkIds.contains(child.get("identifier")))
                         unitsMetadata.add(child);
                     getUnitsToBeSynced((List<Map<String, Object>>) child.get("children"), bookmarkIds);
                 }
@@ -108,13 +103,22 @@ public class CassandraESSyncManager {
 
     private List<String> getFailedUnitIds(List<Map<String, Object>> units, List<String> bookmarkIds) {
         List<String> failedUnits = new ArrayList<>();
-        if (units.size() == bookmarkIds.size())
-            return failedUnits;
-        units.forEach(unit -> {
-            if (bookmarkIds.contains(unit.get("identifier")))
-                bookmarkIds.remove(unit.get("identifier"));
-        });
+        if(CollectionUtils.isNotEmpty(bookmarkIds)) {
+            if (units.size() == bookmarkIds.size())
+                return failedUnits;
+            units.forEach(unit -> {
+                if (bookmarkIds.contains(unit.get("identifier")))
+                    bookmarkIds.remove(unit.get("identifier"));
+            });
+        }
         return bookmarkIds;
+    }
+
+    private Map<String,Object> getTBMetaData(String textBookId) {
+        Node node = util.getNode(graphId, textBookId);
+        if (RequestValidatorUtil.isEmptyOrNull(node))
+            throw new ClientException("RESOURCE_NOT_FOUND", "Enter a Valid Textbook id");
+        return ConvertGraphNode.convertGraphNode(node,graphId,util.getDefinition(graphId,objectType),null);
     }
 
     private Map<String, Object> getESDocuments(List<Map<String, Object>> units) {
@@ -126,7 +130,7 @@ public class CassandraESSyncManager {
         if (objectTypeList.contains(objectType)) {
             indexablePropslist = getIndexableProperties(definition);
             units.forEach(unit -> {
-                if (!indexablePropslist.isEmpty())
+                if (CollectionUtils.isNotEmpty(indexablePropslist))
                     filterIndexableProps(unit, indexablePropslist);
                 additionalFields(unit);
                 esDocument.put((String) unit.get("identifier"), unit);
@@ -144,7 +148,7 @@ public class CassandraESSyncManager {
 
     private Map<String, Object> getDefinition() {
         DefinitionDTO definition = util.getDefinition(graphId, objectType);
-        if (null == definition) {
+        if (RequestValidatorUtil.isEmptyOrNull(definition)) {
             throw new ServerException("ERR_DEFINITION_NOT_FOUND", "No Definition found for " + objectType);
         }
         return mapper.convertValue(definition, new TypeReference<Map<String, Object>>() {

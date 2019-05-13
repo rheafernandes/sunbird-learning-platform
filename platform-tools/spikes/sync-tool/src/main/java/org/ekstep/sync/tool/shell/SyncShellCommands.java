@@ -50,7 +50,11 @@ public class SyncShellCommands implements CommandMarker {
 		long startTime = System.currentTimeMillis();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 		LocalDateTime start = LocalDateTime.now();
-		syncManager.syncByBookmarkId(graphId, id, new ArrayList<>(Arrays.asList(bookmarkIds)));
+		if(bookmarkIds != null)
+			syncManager.syncByBookmarkId(graphId, id, new ArrayList<>(Arrays.asList(bookmarkIds)));
+		else
+			syncManager.syncByBookmarkId(graphId, id, null);
+
 		long endTime = System.currentTimeMillis();
 		long exeTime = endTime - startTime;
 		System.out.println("Total time of execution: " + exeTime + "ms");
