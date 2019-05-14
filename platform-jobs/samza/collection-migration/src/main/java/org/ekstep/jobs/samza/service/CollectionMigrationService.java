@@ -250,15 +250,15 @@ public class CollectionMigrationService implements ISamzaService {
     }
 
     private void migrateECML(Map<String, Object> message, JobMetrics metrics, Map<String, Object> object) {
+        String contentId = (String) object.get("id");
         try {
-            String contentId = (String) object.get("id");
             //Get both the image and original node if exists
             Boolean isImage = false;
             Node ecmlNode = util.getNode("domain", contentId);
             Node ecmlImageNode = util.getNode("domain", contentId + ".img");
 
             if (RequestValidatorUtil.isEmptyOrNull(ecmlImageNode) && RequestValidatorUtil.isEmptyOrNull(ecmlNode)) {
-                throw new ClientException(migrationService.ECML_MIGRATION_FAILED, "No content with this id");
+                throw new ClientException(migrationService.ECML_MIGRATION_FAILED, "No content with the id : " + contentId);
             }
             if (!RequestValidatorUtil.isEmptyOrNull(ecmlImageNode))
                 isImage = true;
@@ -267,14 +267,14 @@ public class CollectionMigrationService implements ISamzaService {
                 String contentBody = util.getContentBody(contentId);
                 String imageContentBody = "";
                 if (RequestValidatorUtil.isEmptyOrNull(contentBody))
-                    throw new ClientException(migrationService.ECML_MIGRATION_FAILED, "Ecml body cannot be null");
+                    throw new ClientException(migrationService.ECML_MIGRATION_FAILED, "Ecml body cannot be null. identifier : ");
                 //Add media maps of all contents (Both node and image node)
                 List<Map<String, Object>> mediaContents = migrationService.getMediaContents(contentBody);
                 if (isImage && migrationService.checkIfValidMigrationRequest(ecmlImageNode)) {
                     imageContentBody = util.getContentBody(contentId + ".img");
                     mediaContents.addAll(migrationService.getMediaContents(imageContentBody));
                     if (RequestValidatorUtil.isEmptyOrNull(imageContentBody))
-                        throw new ClientException(migrationService.ECML_MIGRATION_FAILED, "Ecml Image body cannot be null");
+                        throw new ClientException(migrationService.ECML_MIGRATION_FAILED, "Ecml Image body cannot be null. identifier : ");
                 }
                 //Add medias only with drive urls (Both node and image)
                 List<Map<String, Object>> mediasWithDriveUrl = migrationService.getMediasWithDriveUrl(mediaContents);
@@ -290,9 +290,11 @@ public class CollectionMigrationService implements ISamzaService {
                     migrationService.updateEcmlNode(nodesForUpdate);
                     return;
                 }
+                //Save to old body in cassandra
                 if (isImage)
                     migrationService.ecmlOldBodyUpdate(imageContentBody, contentId + ".img");
-                migrationService.ecmlOldBodyUpdate(contentBody, contentId);//Get all the contents whose drive urls don't have an existing asset
+                migrationService.ecmlOldBodyUpdate(contentBody, contentId);
+                //Get all the contents whose drive urls don't have an existing asset
                 Set<String> contentUrlsWithNoAsset = new HashSet<>();
                 Map<String, String> driveArtifactMap = new HashMap();
                 contentUrls.forEach(contentUrl -> {
@@ -326,14 +328,14 @@ public class CollectionMigrationService implements ISamzaService {
                     migrationService.ecmlBodyUpdate(contentBody, contentId, driveArtifactMap);
                     migrationService.updateEcmlNode(nodesForUpdate);
                 } else
-                    throw new ClientException(migrationService.ECML_MIGRATION_FAILED, "Drive Urls are not valid or No Assets found");
+                    throw new ClientException(migrationService.ECML_MIGRATION_FAILED, "Drive Urls are not valid or No Assets found for content id : " +contentId);
             } else {
                 metrics.incSkippedCounter();
                 LOGGER.info("Migration is already done. Unable to process the event.", message);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage() + "for content id :" + contentId, e);
         }
     }
 

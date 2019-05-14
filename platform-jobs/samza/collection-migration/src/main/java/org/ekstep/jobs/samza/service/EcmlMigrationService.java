@@ -94,7 +94,7 @@ public class EcmlMigrationService {
                         throw new ClientException(ECML_MIGRATION_FAILED, "Google Drive content should be downloadable");
                     }
                 } else {
-                    throw new ClientException(ECML_MIGRATION_FAILED, "Google Drive content cannot be private");
+                    throw new ClientException(ECML_MIGRATION_FAILED, "Google Drive content with url" + dirUrl + "cannot be private");
                 }
             } else {
                 throw new ClientException(ECML_MIGRATION_FAILED, "404 Resource Not Found, Make sure resource is available");
