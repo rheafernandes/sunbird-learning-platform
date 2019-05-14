@@ -290,7 +290,9 @@ public class CollectionMigrationService implements ISamzaService {
                     migrationService.updateEcmlNode(nodesForUpdate);
                     return;
                 }
-                //Get all the contents whose drive urls don't have an existing asset
+                if (isImage)
+                    migrationService.ecmlOldBodyUpdate(imageContentBody, contentId + ".img");
+                migrationService.ecmlOldBodyUpdate(contentBody, contentId);//Get all the contents whose drive urls don't have an existing asset
                 Set<String> contentUrlsWithNoAsset = new HashSet<>();
                 Map<String, String> driveArtifactMap = new HashMap();
                 contentUrls.forEach(contentUrl -> {
