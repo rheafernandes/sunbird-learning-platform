@@ -31,8 +31,8 @@ public class AccessEventGenerator extends TelemetryAccessEventUtil {
 					req.put("fileName", fileName);
 					request.setRequest(req);
 				}
-
 			}
+			request.setRequest_id((String) requestWrapper.getAttribute("requestId"));
 			Response response = null;
 			byte responseContent[] = responseWrapper.getData();
 			if (responseContent.length > 0) {
