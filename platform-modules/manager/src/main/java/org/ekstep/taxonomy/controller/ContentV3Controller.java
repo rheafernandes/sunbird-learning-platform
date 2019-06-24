@@ -61,7 +61,7 @@ public class ContentV3Controller extends BaseController {
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> create(@RequestBody Map<String, Object> requestMap,
-			@RequestHeader(value = CHANNEL_ID, required = true) String channelId) {
+										   @RequestHeader(value = CHANNEL_ID, required = true) String channelId) {
 		String apiId = "ekstep.learning.content.create";
 		TelemetryManager.log("Executing Content Create API (Java Version) (API Version V3).", requestMap);
 		Request request = getRequest(requestMap);
@@ -342,6 +342,31 @@ public class ContentV3Controller extends BaseController {
 		}
 	}
 
+//	/**
+//	 * This method fetches the Content by Content Id
+//	 *
+//	 * @param contentId
+//	 *            The Content Id whose hierarchy needs to be fetched
+//	 * @return The Response entity with Content hierarchy in the result set
+//	 */
+//	@RequestMapping(value = "/read/{id:.+}", method = RequestMethod.GET)
+//	@ResponseBody
+//	public ResponseEntity<Response> find(@PathVariable(value = "id") String contentId,
+//			@RequestParam(value = "fields", required = false) String[] fields,
+//			@RequestParam(value = "mode", required = false) String mode) {
+//		String apiId = "ekstep.content.find";
+//		Response response;
+//		TelemetryManager.log("Content Find | Content Id : " + contentId);
+//		try {
+//			TelemetryManager.log(
+//					"Calling the Manager for fetching content 'getById' | [Content Id " + contentId + "]" + contentId);
+//			response = contentManager.find(contentId, mode, convertStringArrayToList(fields));
+//			return getResponseEntity(response, apiId, null);
+//		} catch (Exception e) {
+//			TelemetryManager.error("Exception: " + e.getMessage(), e);
+//			return getExceptionResponseEntity(e, apiId, null);
+//		}
+//	}
 	/**
 	 * This method fetches the Content by Content Id
 	 *
@@ -352,8 +377,8 @@ public class ContentV3Controller extends BaseController {
 	@RequestMapping(value = "/read/{id:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> find(@PathVariable(value = "id") String contentId,
-			@RequestParam(value = "fields", required = false) String[] fields,
-			@RequestParam(value = "mode", required = false) String mode) {
+										 @RequestParam(value = "fields", required = false) String[] fields,
+										 @RequestParam(value = "mode", required = false) String mode) {
 		String apiId = "ekstep.content.find";
 		Response response;
 		TelemetryManager.log("Content Find | Content Id : " + contentId);

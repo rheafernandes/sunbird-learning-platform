@@ -233,7 +233,9 @@ public class TelemetryGenerator {
 		String did = context.get("did");
 		if (StringUtils.isNotBlank(did))
 			eventContext.setDid(did);
-
+		String requestId = context.get("requestId");
+		if (StringUtils.isNotBlank(requestId))
+			eventContext.setRequestId(requestId);
 		return eventContext;
 	}
 

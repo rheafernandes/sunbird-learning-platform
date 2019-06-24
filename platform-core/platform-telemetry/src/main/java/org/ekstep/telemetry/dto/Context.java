@@ -26,6 +26,7 @@ public class Context {
 	private String env;
 	private String sid;
 	private String did;
+	private String requestId;
 	
 	
 	/**
@@ -88,5 +89,12 @@ public class Context {
 	public void setDid(String did) {
 		this.did = did;
 	}
-	
+
+	public String getRequestId() {
+		return requestId;
+	}
+
+	public void setRequestId(String requestId) {
+		this.requestId = requestId;
+	}
 }

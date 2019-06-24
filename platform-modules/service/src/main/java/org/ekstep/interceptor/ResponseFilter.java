@@ -68,8 +68,7 @@ public class ResponseFilter implements Filter {
 			requestWrapper.setAttribute("requestId", requestId);
 
 			chain.doFilter(requestWrapper, responseWrapper);
-
-			AccessEventGenerator.writeTelemetryEventLog(requestWrapper, responseWrapper);
+ 			AccessEventGenerator.writeTelemetryEventLog(requestWrapper, responseWrapper);
 			response.getOutputStream().write(responseWrapper.getData());
 		} else {
 			TelemetryManager.log("Path: " + httpRequest.getServletPath() +" | Remote Address: " + request.getRemoteAddr());
