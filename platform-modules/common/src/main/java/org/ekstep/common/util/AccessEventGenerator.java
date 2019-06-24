@@ -24,15 +24,18 @@ public class AccessEventGenerator extends TelemetryAccessEventUtil {
 			} else if (null != body) {
 				int index = body.indexOf("filename=");
 				String fileName = "";
+				request = new Request();
 				if (index > 0) {
 					fileName = body.substring(index + 10, body.indexOf("\"", index + 10));
-					request = new Request();
 					Map<String, Object> req = new HashMap<String, Object>();
 					req.put("fileName", fileName);
 					request.setRequest(req);
 				}
-
 			}
+			Map<String, Object> requestContext = new HashMap();
+			System.out.println(requestWrapper.getAttribute("requestId"));
+			requestContext.put("requestId", requestWrapper.getAttribute("requestId"));
+			request.setContext(requestContext);
 			Response response = null;
 			byte responseContent[] = responseWrapper.getData();
 			if (responseContent.length > 0) {

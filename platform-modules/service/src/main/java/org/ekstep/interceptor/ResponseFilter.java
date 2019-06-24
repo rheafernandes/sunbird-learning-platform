@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
 import org.ekstep.common.dto.ExecutionContext;
 import org.ekstep.common.dto.HeaderParam;
+import org.ekstep.common.dto.Request;
 import org.ekstep.common.util.RequestWrapper;
 import org.ekstep.common.util.ResponseWrapper;
 import org.ekstep.telemetry.TelemetryGenerator;
@@ -33,8 +34,8 @@ public class ResponseFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		String requestId = getUUID();
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
+		String requestId = httpRequest.getHeader("X-Request-Id") != null ? httpRequest.getHeader("X-Request-Id") : getUUID();
 		ExecutionContext.setRequestId(requestId);
 		String consumerId = httpRequest.getHeader("X-Consumer-ID");
 		String channelId = httpRequest.getHeader("X-Channel-Id");
@@ -64,10 +65,10 @@ public class ResponseFilter implements Filter {
 			String env = getEnv(requestWrapper);
 			ExecutionContext.getCurrent().getGlobalContext().put(TelemetryParams.ENV.name(), env);
 			requestWrapper.setAttribute("env", env);
+			requestWrapper.setAttribute("requestId", requestId);
 
 			chain.doFilter(requestWrapper, responseWrapper);
-
-			AccessEventGenerator.writeTelemetryEventLog(requestWrapper, responseWrapper);
+ 			AccessEventGenerator.writeTelemetryEventLog(requestWrapper, responseWrapper);
 			response.getOutputStream().write(responseWrapper.getData());
 		} else {
 			TelemetryManager.log("Path: " + httpRequest.getServletPath() +" | Remote Address: " + request.getRemoteAddr());

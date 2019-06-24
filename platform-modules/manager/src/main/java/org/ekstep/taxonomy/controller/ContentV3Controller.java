@@ -63,7 +63,7 @@ public class ContentV3Controller extends BaseController {
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> create(@RequestBody Map<String, Object> requestMap,
-			@RequestHeader(value = CHANNEL_ID, required = true) String channelId) {
+										   @RequestHeader(value = CHANNEL_ID, required = true) String channelId) {
 		String apiId = "ekstep.learning.content.create";
 		TelemetryManager.log("Executing Content Create API (Java Version) (API Version V3).", requestMap);
 		Request request = getRequest(requestMap);
@@ -382,6 +382,7 @@ public class ContentV3Controller extends BaseController {
 										 @RequestParam(value = "fields", required = false) String[] fields,
 										 @RequestParam(value = "mode", required = false) String mode,
 	 									 @RequestHeader(value = REQUEST_ID, required = false ) String requestId) {
+
 		String apiId = "ekstep.content.find";
 		Response response;
 		TelemetryManager.log("Content Find | Content Id : " + contentId);
