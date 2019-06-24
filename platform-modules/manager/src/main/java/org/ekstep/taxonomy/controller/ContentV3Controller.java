@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -381,8 +382,8 @@ public class ContentV3Controller extends BaseController {
 	public ResponseEntity<Response> find(@PathVariable(value = "id") String contentId,
 										 @RequestParam(value = "fields", required = false) String[] fields,
 										 @RequestParam(value = "mode", required = false) String mode,
-	 									 @RequestHeader(value = REQUEST_ID, required = false ) String requestId) {
-
+	 									 @RequestAttribute(value = "requestId", required = false) String requestId) {
+		System.out.println("Inside Controller: " +requestId);
 		String apiId = "ekstep.content.find";
 		Response response;
 		TelemetryManager.log("Content Find | Content Id : " + contentId);
