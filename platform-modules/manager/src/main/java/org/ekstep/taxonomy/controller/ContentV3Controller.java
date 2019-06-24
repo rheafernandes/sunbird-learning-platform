@@ -51,6 +51,8 @@ public class ContentV3Controller extends BaseController {
 
 	private static final String CHANNEL_ID = "X-Channel-Id";
 
+	private static final String REQUEST_ID = "X-Request-Id";
+
 	private String UNDERSCORE = "_";
 
 	private String DOT = ".";
@@ -342,6 +344,31 @@ public class ContentV3Controller extends BaseController {
 		}
 	}
 
+//	/**
+////	 * This method fetches the Content by Content Id
+////	 *
+////	 * @param contentId
+////	 *            The Content Id whose hierarchy needs to be fetched
+////	 * @return The Response entity with Content hierarchy in the result set
+////	 */
+////	@RequestMapping(value = "/read/{id:.+}", method = RequestMethod.GET)
+////	@ResponseBody
+////	public ResponseEntity<Response> find(@PathVariable(value = "id") String contentId,
+////			@RequestParam(value = "fields", required = false) String[] fields,
+////			@RequestParam(value = "mode", required = false) String mode) {
+////		String apiId = "ekstep.content.find";
+////		Response response;
+////		TelemetryManager.log("Content Find | Content Id : " + contentId);
+////		try {
+////			TelemetryManager.log(
+////					"Calling the Manager for fetching content 'getById' | [Content Id " + contentId + "]" + contentId);
+////			response = contentManager.find(contentId, mode, convertStringArrayToList(fields));
+////			return getResponseEntity(response, apiId, null);
+////		} catch (Exception e) {
+////			TelemetryManager.error("Exception: " + e.getMessage(), e);
+////			return getExceptionResponseEntity(e, apiId, null);
+////		}
+////	}
 	/**
 	 * This method fetches the Content by Content Id
 	 *
@@ -352,8 +379,9 @@ public class ContentV3Controller extends BaseController {
 	@RequestMapping(value = "/read/{id:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> find(@PathVariable(value = "id") String contentId,
-			@RequestParam(value = "fields", required = false) String[] fields,
-			@RequestParam(value = "mode", required = false) String mode) {
+										 @RequestParam(value = "fields", required = false) String[] fields,
+										 @RequestParam(value = "mode", required = false) String mode,
+	 									 @RequestHeader(value = REQUEST_ID, required = false ) String requestId) {
 		String apiId = "ekstep.content.find";
 		Response response;
 		TelemetryManager.log("Content Find | Content Id : " + contentId);
@@ -367,6 +395,7 @@ public class ContentV3Controller extends BaseController {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
+
 
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/upload/url/{id:.+}", method = RequestMethod.POST)
