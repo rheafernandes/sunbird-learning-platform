@@ -1,6 +1,8 @@
 package org.ekstep.interceptor;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.Filter;
@@ -33,8 +35,8 @@ public class ResponseFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		String requestId = getUUID();
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
+		String requestId = httpRequest.getHeader("X-Request-Id") != null ? httpRequest.getHeader("X-Request-Id") : getUUID();
 		ExecutionContext.setRequestId(requestId);
 		String consumerId = httpRequest.getHeader("X-Consumer-ID");
 		String channelId = httpRequest.getHeader("X-Channel-Id");
@@ -64,7 +66,8 @@ public class ResponseFilter implements Filter {
 			String env = getEnv(requestWrapper);
 			ExecutionContext.getCurrent().getGlobalContext().put(TelemetryParams.ENV.name(), env);
 			requestWrapper.setAttribute("env", env);
-
+			Map<String, Object> requestContext = getRequestContext(requestId);
+			requestWrapper.setAttribute("requestContext", requestContext);
 			chain.doFilter(requestWrapper, responseWrapper);
 
 			AccessEventGenerator.writeTelemetryEventLog(requestWrapper, responseWrapper);
@@ -101,4 +104,9 @@ public class ResponseFilter implements Filter {
 		return uid.toString();
 	}
 
+	private Map<String, Object> getRequestContext(String requestId) {
+		Map requestContext = new HashMap();
+		requestContext.put("requestId", requestId);
+		return requestContext;
+	}
 }

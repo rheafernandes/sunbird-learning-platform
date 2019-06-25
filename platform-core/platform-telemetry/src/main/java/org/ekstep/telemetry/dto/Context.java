@@ -26,8 +26,10 @@ public class Context {
 	private String env;
 	private String sid;
 	private String did;
-	
-	
+	private String requestId;
+
+
+
 	/**
 	 * @return the channel
 	 */
@@ -88,5 +90,20 @@ public class Context {
 	public void setDid(String did) {
 		this.did = did;
 	}
-	
+
+	/**
+	 *
+	 * @return the requestId
+	 */
+	public String getRequestId() {
+		return requestId;
+	}
+
+	/**
+	 *
+	 * @param requestId is set
+	 */
+	public void setRequestId(String requestId) {
+		this.requestId = requestId;
+	}
 }
