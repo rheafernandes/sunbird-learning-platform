@@ -390,7 +390,9 @@ public class ContentV3Controller extends BaseController {
 		try {
 			TelemetryManager.log(
 					"Calling the Manager for fetching content 'getById' | [Content Id " + contentId + "]" + contentId);
-			response = contentManager.find(contentId, mode, convertStringArrayToList(fields));
+			Request request = getRequest(null);
+			request = setContextToRequest(request, requestId);
+			response = contentManager.find(contentId, mode, convertStringArrayToList(fields), request);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception: " + e.getMessage(), e);

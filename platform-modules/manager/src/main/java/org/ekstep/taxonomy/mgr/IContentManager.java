@@ -181,6 +181,9 @@ public interface IContentManager {
 	 */
 	Response find(String contentId, String mode, List<String> fields);
 
+	Response find(String contentId, String mode, List<String> fields, Request request);
+
+
 	/**
 	 * @param map
 	 * @return

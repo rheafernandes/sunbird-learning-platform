@@ -110,6 +110,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	@Override
+	public Response find(String contentId, String mode, List<String> fields, Request request) {
+		return this.contentManger.find(contentId, mode, fields, request);
+	}
+
+	@Override
 	public Response updateAllContents(String originalId, Map<String, Object> map) throws Exception {
 		return this.contentManger.updateAllContents(originalId, map);
 	}

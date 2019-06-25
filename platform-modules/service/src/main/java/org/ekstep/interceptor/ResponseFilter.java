@@ -58,7 +58,6 @@ public class ResponseFilter implements Filter {
 
 		if (!path.contains("/health")) {
 			RequestWrapper requestWrapper = new RequestWrapper(httpRequest);
-			requestWrapper.setAttribute();
 			TelemetryManager.log("Path: " + requestWrapper.getServletPath()+ " | Remote Address: " + request.getRemoteAddr());
 
 			ResponseWrapper responseWrapper = new ResponseWrapper((HttpServletResponse) response);

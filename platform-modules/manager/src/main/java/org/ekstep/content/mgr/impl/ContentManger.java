@@ -1,5 +1,6 @@
 package org.ekstep.content.mgr.impl;
 
+import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.content.mgr.impl.operation.content.CreateOperation;
 import org.ekstep.content.mgr.impl.operation.content.DiscardOperation;
@@ -23,7 +24,11 @@ public class ContentManger {
     }
 
     public Response find(String contentId, String mode, List<String> fields) {
-        return this.findOperation.find(contentId, mode, fields);
+        return this.findOperation.find(contentId, mode, fields,null);
+    }
+
+    public Response find(String contentId, String mode, List<String> fields, Request request) {
+        return this.findOperation.find(contentId, mode, fields, request);
     }
 
     public Response updateAllContents(String originalId, Map<String, Object> map) throws Exception {

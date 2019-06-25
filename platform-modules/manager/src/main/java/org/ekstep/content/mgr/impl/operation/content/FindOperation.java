@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ekstep.common.Platform;
+import org.ekstep.common.dto.Request;
 import org.ekstep.common.dto.Response;
 import org.ekstep.common.exception.ClientException;
 import org.ekstep.common.exception.ServerException;
@@ -33,8 +34,8 @@ public class FindOperation extends BaseContentManager {
     private static final Boolean CONTENT_CACHE_ENABLED = Platform.config.hasPath("content.cache.read") ? Platform.config.getBoolean("content.cache.read") : false;
 
     @SuppressWarnings("unchecked")
-    public Response find(String contentId, String mode, List<String> fields) {
-
+    public Response find(String contentId, String mode, List<String> fields, Request request) {
+        System.out.println(request.getContext().get("requestId"));
         Response response = new Response();
         Map<String, Object> contentMap = null;
 
