@@ -92,7 +92,7 @@ public class EpubMimeTypeMgrTest extends GraphEngineTestSetup {
 		assertEquals(ResponseCode.OK, response.getResponseCode());
 		List<String> fields = new ArrayList<String>();
 		fields.add("status");
-		Response res = mgr.find(node_id, null, fields);
+		Response res = mgr.find(node_id, null, fields, null);
 
 		Map<String, Object> reviewResult = res.getResult();
 		assertEquals(true, reviewResult.containsKey("content"));
@@ -118,7 +118,7 @@ public class EpubMimeTypeMgrTest extends GraphEngineTestSetup {
 		List<String> fields = new ArrayList<String>();
 		fields.add("status");
 		fields.add("downloadUrl");
-		Response res = mgr.find(node_id, null, fields);
+		Response res = mgr.find(node_id, null, fields, null);
 
 		Map<String, Object> publishResult = res.getResult();
 		assertEquals(true, publishResult.containsKey("content"));
@@ -131,7 +131,7 @@ public class EpubMimeTypeMgrTest extends GraphEngineTestSetup {
 				} catch (InterruptedException e) {
 					System.out.println(e);
 				}
-				Response getContent = mgr.find(node_id, null, fields);
+				Response getContent = mgr.find(node_id, null, fields, null);
 				Map<String, Object> data = getContent.getResult();
 				Map<String, Object> contentData = (Map) data.get("content");
 				if (contentData.get("status").equals(PROCESSING) && contentData.get("status").equals(PENDING)) {

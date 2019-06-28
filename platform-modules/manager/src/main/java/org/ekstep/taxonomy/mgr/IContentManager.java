@@ -179,7 +179,7 @@ public interface IContentManager {
 	 *
 	 * @return the response contains the <code>content</code> in its Result Set.
 	 */
-	Response find(String contentId, String mode, List<String> fields);
+	Response find(String contentId, String mode, List<String> fields, String source);
 
 	/**
 	 * @param map
@@ -283,7 +283,7 @@ public interface IContentManager {
 	 * @return
 	 * @throws Exception
 	 */
-	Response getContentHierarchy(String contentId, String bookMarkId,  String mode, List<String> fields) throws
+	Response getContentHierarchy(String contentId, String bookMarkId,  String mode, List<String> fields, String source) throws
 			Exception;
 
 	/**

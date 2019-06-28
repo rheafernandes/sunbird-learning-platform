@@ -20,7 +20,7 @@ public class HierarchyManager {
 
     public Response sync(String identifier) { return this.syncHierarchyOperation.syncHierarchy(identifier); }
 
-    public Response getContentHierarchy(String contentId, String bookMarkId, String mode, List<String> fields) {
-        return this.getHierarchyOperation.getContentHierarchy(contentId, bookMarkId, mode, fields);
+    public Response getContentHierarchy(String contentId, String bookMarkId, String mode, List<String> fields, String source) {
+        return this.getHierarchyOperation.getContentHierarchy(contentId, bookMarkId, mode, fields, source);
     }
 }

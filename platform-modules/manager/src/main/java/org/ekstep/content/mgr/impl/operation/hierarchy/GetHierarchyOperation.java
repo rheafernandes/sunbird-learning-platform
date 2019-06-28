@@ -53,7 +53,7 @@ public class GetHierarchyOperation extends BaseContentManager {
      * @param fields
      * @return
      */
-    public Response getContentHierarchy(String rootId, String bookmarkId, String mode, List<String> fields) {
+    public Response getContentHierarchy(String rootId, String bookmarkId, String mode, List<String> fields, String source) {
         // Check bookmarkId is same as rootId
         if (StringUtils.isBlank(rootId))
             throw new ClientException(ContentErrorCodes.ERR_INVALID_INPUT.name(), "Requested ID is null or empty");
@@ -61,7 +61,7 @@ public class GetHierarchyOperation extends BaseContentManager {
         if (StringUtils.equalsIgnoreCase("edit", mode)) {
             return getUnPublishedHierarchy(rootId, bookmarkId, fields);
         } else {
-            return getPublishedHierarchy(rootId, bookmarkId);
+            return getPublishedHierarchy(rootId, bookmarkId, source);
         }
     }
 
@@ -163,12 +163,12 @@ public class GetHierarchyOperation extends BaseContentManager {
      * @param bookmarkId
      * @return
      */
-    private Response getPublishedHierarchy(String rootId, String bookmarkId) {
+    private Response getPublishedHierarchy(String rootId, String bookmarkId, String source) {
         Response response = getSuccessResponse();
         Map<String, Object> rootHierarchy = null;
         String cacheKey = COLLECTION_CACHE_KEY_PREFIX + rootId;
         String hierarchy = "";
-        if(CONTENT_CACHE_ENABLED)
+        if(CONTENT_CACHE_ENABLED && !(StringUtils.isNotBlank(source) && StringUtils.equalsIgnoreCase(source, "db")))
             hierarchy =  RedisStoreUtil.get(cacheKey);
 
         if (StringUtils.isNotBlank(hierarchy)) {

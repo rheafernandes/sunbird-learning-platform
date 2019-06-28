@@ -292,7 +292,8 @@ public class ContentV3Controller extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> hierarchy(@PathVariable(value = "id") String contentId,
 											  @RequestParam(value = "mode", required = false) String mode,
-											  @RequestParam(value = "fields", required = false) String[] fields) {
+											  @RequestParam(value = "fields", required = false) String[] fields,
+											  @RequestParam (value = "source", required = false)String source) {
 		String apiId = "ekstep.learning.content.hierarchy";
 		Response response;
 		TelemetryManager.log("Content Hierarchy | Content Id : " + contentId);
@@ -303,7 +304,7 @@ public class ContentV3Controller extends BaseController {
 			// This is to support portal backward compatibility. Remove after 1.14.0 final sprint.
 			if (reqFields.size() == 1 && StringUtils.equalsIgnoreCase( reqFields.get(0), "versionKey"))
 				reqFields = null;
-			response = contentManager.getContentHierarchy(contentId, null, mode, reqFields);
+			response = contentManager.getContentHierarchy(contentId, null, mode, reqFields, source);
 
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -326,7 +327,8 @@ public class ContentV3Controller extends BaseController {
 	public ResponseEntity<Response> hierarchy(@PathVariable(value = "id") String contentId,
 											  @PathVariable(value = "bookmarkId") String bookmarkId,
 											  @RequestParam(value = "mode", required = false) String mode,
-											  @RequestParam(value = "fields", required = false) String[] fields) {
+											  @RequestParam(value = "fields", required = false) String[] fields,
+											  @RequestParam (value = "source", required = false)String source) {
 		String apiId = "ekstep.learning.content.hierarchy";
 		Response response;
 		TelemetryManager.log("Content Hierarchy | Content Id : " + contentId);
@@ -334,7 +336,7 @@ public class ContentV3Controller extends BaseController {
 			TelemetryManager.log("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]"
 					+ contentId);
 			List<String> reqFields = convertStringArrayToList(fields);
-			response = contentManager.getContentHierarchy(contentId, bookmarkId, mode, reqFields);
+			response = contentManager.getContentHierarchy(contentId, bookmarkId, mode, reqFields, source);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception: " + e.getMessage(), e);
@@ -353,14 +355,15 @@ public class ContentV3Controller extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> find(@PathVariable(value = "id") String contentId,
 			@RequestParam(value = "fields", required = false) String[] fields,
-			@RequestParam(value = "mode", required = false) String mode) {
+			@RequestParam(value = "mode", required = false) String mode,
+			@RequestParam (value = "source", required = false)String source) {
 		String apiId = "ekstep.content.find";
 		Response response;
 		TelemetryManager.log("Content Find | Content Id : " + contentId);
 		try {
 			TelemetryManager.log(
 					"Calling the Manager for fetching content 'getById' | [Content Id " + contentId + "]" + contentId);
-			response = contentManager.find(contentId, mode, convertStringArrayToList(fields));
+			response = contentManager.find(contentId, mode, convertStringArrayToList(fields), source);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			TelemetryManager.error("Exception: " + e.getMessage(), e);

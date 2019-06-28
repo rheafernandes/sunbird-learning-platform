@@ -167,7 +167,7 @@ public class CopyOperation extends BaseContentManager {
      */
     @SuppressWarnings("unchecked")
     private void copyHierarchy(Node existingNode, Map<String, String> idMap, String mode) {
-        Response readResponse = hierarchyManager.getContentHierarchy(existingNode.getIdentifier(), null, mode, null);
+        Response readResponse = hierarchyManager.getContentHierarchy(existingNode.getIdentifier(), null, mode, null, "db");
         if(checkError(readResponse)) {
             TelemetryManager.error("CopyContent: Error while reading hierarchy: " + readResponse.getParams().getErr() + " :: " + readResponse.getParams().getErrmsg() + readResponse.getResult());
             if(MapUtils.isNotEmpty(readResponse.getResult()) && graphValidationErrors.contains(readResponse.getParams().getErr()))

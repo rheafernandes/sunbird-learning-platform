@@ -30,7 +30,7 @@ public class TagsWorkflowTest {
 		});
 		Response response = mgr.create(messageData, channelId);
 		String node_id = (String)response.getResult().get("node_id");
-		Response resp = mgr.find(node_id, null, null);
+		Response resp = mgr.find(node_id, null, null, null);
 		Map<String,Object> content = (Map)resp.getResult().get("content");
 //		assertEquals(true, content.containsKey("keywords"));
 	    assertEquals(false, resp.getResult().containsKey("keywords"));
@@ -43,7 +43,7 @@ public class TagsWorkflowTest {
 		});
 		Response response = mgr.create(messageData, channelId);
 		String node_id = (String)response.getResult().get("node_id");
-		Response resp = mgr.find(node_id, null, null);
+		Response resp = mgr.find(node_id, null, null, null);
 		Map<String,Object> content = (Map)resp.getResult().get("content");
 //		assertEquals(true, content.containsKey("keywords"));
 	}

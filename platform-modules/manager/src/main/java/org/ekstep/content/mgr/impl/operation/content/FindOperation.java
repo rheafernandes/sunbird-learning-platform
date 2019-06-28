@@ -33,7 +33,7 @@ public class FindOperation extends BaseContentManager {
     private static final Boolean CONTENT_CACHE_ENABLED = Platform.config.hasPath("content.cache.read") ? Platform.config.getBoolean("content.cache.read") : false;
 
     @SuppressWarnings("unchecked")
-    public Response find(String contentId, String mode, List<String> fields) {
+    public Response find(String contentId, String mode, List<String> fields, String source) {
 
         Response response = new Response();
         Map<String, Object> contentMap = null;
@@ -51,7 +51,7 @@ public class FindOperation extends BaseContentManager {
 
         if (!StringUtils.equalsIgnoreCase("edit", mode)) {
             String content = "";
-            if(CONTENT_CACHE_ENABLED)
+            if(CONTENT_CACHE_ENABLED && !(StringUtils.isNotBlank(source) && StringUtils.equalsIgnoreCase(source, "db")))
                 content = RedisStoreUtil.get(contentId);
 
             if (StringUtils.isNotBlank(content)) {

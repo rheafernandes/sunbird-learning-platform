@@ -151,7 +151,7 @@ public class YouTubeUrlUtilTest extends GraphEngineTestSetup {
 		assertEquals("OK", responseCode);
 		RedisStoreUtil.delete(contentId);
 		//Read Content and Verify Result
-		Response resp = contentManager.find(contentId, null, null);
+		Response resp = contentManager.find(contentId, null, null, null);
 		String license = (String) ((Map<String, Object>) resp.getResult().get("content")).get("license");
 		assertEquals("Creative Commons Attribution (CC BY)", license);
 	}
@@ -171,7 +171,7 @@ public class YouTubeUrlUtilTest extends GraphEngineTestSetup {
 		RedisStoreUtil.delete(contentId);
 		delay(2000);
 		//Read Content and Verify Result
-		Response resp = contentManager.find(contentId, null, null);
+		Response resp = contentManager.find(contentId, null, null, null);
 		String license = (String) ((Map<String, Object>) resp.getResult().get("content")).get("license");
 		assertEquals("Standard YouTube License", license);
 	}

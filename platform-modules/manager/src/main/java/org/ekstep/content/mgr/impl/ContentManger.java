@@ -22,8 +22,8 @@ public class ContentManger {
         return this.createOperation.create(map, channelId);
     }
 
-    public Response find(String contentId, String mode, List<String> fields) {
-        return this.findOperation.find(contentId, mode, fields);
+    public Response find(String contentId, String mode, List<String> fields, String source) {
+        return this.findOperation.find(contentId, mode, fields, source);
     }
 
     public Response updateAllContents(String originalId, Map<String, Object> map) throws Exception {

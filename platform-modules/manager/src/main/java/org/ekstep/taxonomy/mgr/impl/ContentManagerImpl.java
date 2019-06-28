@@ -105,8 +105,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	@Override
-	public Response find(String contentId, String mode, List<String> fields) {
-		return this.contentManger.find(contentId, mode, fields);
+	public Response find(String contentId, String mode, List<String> fields, String source) {
+		return this.contentManger.find(contentId, mode, fields, source);
 	}
 
 	@Override
@@ -179,9 +179,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
     @Override
-    public Response getContentHierarchy(String contentId, String bookMarkId, String mode, List<String> fields) throws
+    public Response getContentHierarchy(String contentId, String bookMarkId, String mode, List<String> fields, String source) throws
 			Exception {
-        return this.hierarchyManager.getContentHierarchy(contentId, bookMarkId, mode, fields);
+        return this.hierarchyManager.getContentHierarchy(contentId, bookMarkId, mode, fields, source);
     }
 
 	/**
