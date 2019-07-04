@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import akka.pattern.Patterns;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.Platform;
@@ -59,6 +60,8 @@ public class BaseFrameworkManager extends BaseManager {
 			? Platform.config.getStringList("language.graph_ids")
 			: null;
 
+	protected ObjectMapper mapper = new ObjectMapper();
+
 	protected Response create(Map<String, Object> request, String objectType) {
 		if (request.containsKey("translations"))
 			validateTranslation(request);
@@ -86,11 +89,12 @@ public class BaseFrameworkManager extends BaseManager {
 		Node node = (Node) responseNode.get(GraphDACParams.node.name());
 		DefinitionDTO definition = getDefinition(GRAPH_ID, objectType);
 		Map<String, Object> responseMap = ConvertGraphNode.convertGraphNode(node, GRAPH_ID, definition, null);
+		ConvertGraphNode.filterNodeRelationships(responseMap, definition);
 		response.put(responseObject, responseMap);
 		response.setParams(getSucessStatus());
 		return response;
 	}
-
+	
 	protected Response update(String identifier, String objectType, Map<String, Object> map) {
 		if (map.containsKey("translations"))
 			validateTranslation(map);

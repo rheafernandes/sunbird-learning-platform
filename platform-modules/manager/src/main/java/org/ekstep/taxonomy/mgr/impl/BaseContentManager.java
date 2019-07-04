@@ -248,12 +248,25 @@ public abstract class BaseContentManager extends BaseManager {
 		}
 		return list;
 	}
+	
+	protected Response createDataNode(Node node) {
+		return createDataNode(node, null, false);
+	}
 
-    protected Response createDataNode(Node node) {
+
+	protected Response createImageNode(Node node, String channel) {
+        return createDataNode(node, channel, true);
+    }
+
+    protected Response createDataNode(Node node, String channel, Boolean isSkipValidation) {
         Response response = new Response();
         if (null != node) {
             Request request = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "createDataNode");
+            if (StringUtils.isNotBlank(channel)) {
+                request.getContext().put(GraphDACParams.CHANNEL_ID.name(), channel);
+            }
             request.put(GraphDACParams.node.name(), node);
+            request.put(GraphDACParams.skip_validations.name(), isSkipValidation);
 
             TelemetryManager.log("Creating the Node ID: " + node.getIdentifier());
             response = getResponse(request);
@@ -332,9 +345,8 @@ public abstract class BaseContentManager extends BaseManager {
         }
         if (StringUtils.equalsIgnoreCase(COLLECTION_MIME_TYPE, domainObj.getMetadata().get("mimeType").toString())) {
             RedisStoreUtil.delete(COLLECTION_CACHE_KEY_PREFIX + originalId);
-        } else {
-            RedisStoreUtil.delete(originalId);
         }
+        RedisStoreUtil.delete(originalId);
         return updateResponse;
     }
 
@@ -402,7 +414,8 @@ public abstract class BaseContentManager extends BaseManager {
         imageNode.setOutRelations(node.getOutRelations());
         imageNode.setTags(node.getTags());
         imageNode.getMetadata().put(TaxonomyAPIParams.status.name(), TaxonomyAPIParams.Draft.name());
-        Response response = createDataNode(imageNode);
+        String channel = (String) node.getMetadata().get("channel");
+        Response response = createImageNode(imageNode, channel);
         if (checkError(response))
             throw new ServerException(TaxonomyErrorCodes.ERR_NODE_CREATION.name(),
                     "Error! Something went wrong while performing the operation. | [Content Id: " + node.getIdentifier()
