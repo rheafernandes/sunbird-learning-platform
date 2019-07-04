@@ -159,6 +159,8 @@ public class PublishFinalizer extends BaseFinalizer {
 		if (null == node)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null Node.]");
+		RedisStoreUtil.delete(contentId);
+		RedisStoreUtil.delete(COLLECTION_CACHE_KEY_PREFIX + contentId);
 		if (node.getIdentifier().endsWith(".img")) {
 			String updatedVersion = preUpdateNode(node.getIdentifier());
 			node.getMetadata().put(GraphDACParams.versionKey.name(), updatedVersion);
@@ -323,12 +325,6 @@ public class PublishFinalizer extends BaseFinalizer {
 			updateHierarchyMetadata(children, publishedNode);
 			publishHierarchy(publishedNode, children);
 			syncNodes(children, unitNodes);
-		}
-		//TODO: Reduce get definition call
-		if (CONTENT_CACHE_ENABLED) {
-			DefinitionDTO definition = util.getDefinition(TAXONOMY_ID, "Content");
-			Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, TAXONOMY_ID, definition, null);
-			RedisStoreUtil.saveData(contentId, contentMap, 0);
 		}
 
 		return response;
@@ -560,8 +556,6 @@ public class PublishFinalizer extends BaseFinalizer {
 	private void publishHierarchy(Node node, List<Map<String,Object>> childrenList) {
 		Map<String, Object> hierarchy = getContentMap(node, childrenList);
 		hierarchyStore.saveOrUpdateHierarchy(node.getIdentifier(), hierarchy);
-		if (CONTENT_HIERARCHY_CACHE_ENABLED)
-			RedisStoreUtil.saveData(COLLECTION_CACHE_KEY_PREFIX + node.getIdentifier(), hierarchy, CONTENT_CACHE_TTL);
 	}
 
 	private Map<String, Object> getContentMap(Node node, List<Map<String,Object>> childrenList) {
@@ -601,7 +595,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		//TODO:  For appIcon, posterImage and screenshot createThumbNail method has to be implemented.
 		content.put(ContentWorkflowPipelineParams.lastPublishedOn.name(), node.getMetadata().get(ContentWorkflowPipelineParams.lastPublishedOn.name()));
 		content.put(ContentWorkflowPipelineParams.pkgVersion.name(), node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()));
-		content.put(ContentWorkflowPipelineParams.leafNodesCount.name(), getLeafNodeCount(content, 0));
+		content.put(ContentWorkflowPipelineParams.leafNodesCount.name(), getLeafNodeCount(content));
 		content.put(ContentWorkflowPipelineParams.status.name(), node.getMetadata().get(ContentWorkflowPipelineParams.status.name()));
 		content.put(ContentWorkflowPipelineParams.lastUpdatedOn.name(), node.getMetadata().get(ContentWorkflowPipelineParams.lastUpdatedOn.name()));
 		content.put(ContentWorkflowPipelineParams.downloadUrl.name(), node.getMetadata().get(ContentWorkflowPipelineParams.downloadUrl.name()));
@@ -609,20 +603,10 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Integer getLeafNodeCount(Map<String, Object> data, int leafCount) {
-		List<Object> children = (List<Object>) data.get("children");
-		if (null != children && !children.isEmpty()) {
-			for (Object child : children) {
-				Map<String, Object> childMap = (Map<String, Object>) child;
-				int lc = 0;
-				lc = getLeafNodeCount(childMap, lc);
-				leafCount = leafCount + lc;
-			}
-		} else {
-			if (!COLLECTION_MIMETYPE.equals(data.get(ContentAPIParams.mimeType.name())))
-				leafCount++;
-		}
-		return leafCount;
+	private Integer getLeafNodeCount(Map<String, Object> data) {
+	    Set<String> leafNodeIds = new HashSet<>();
+	    getLeafNodesIds(data, leafNodeIds);
+	    return leafNodeIds.size();
 	}
 
 	private double getTotalCompressedSize(Map<String, Object> data, double totalCompressed) {
@@ -658,7 +642,8 @@ public class PublishFinalizer extends BaseFinalizer {
 			} else {
 				throw new ServerException(ContentErrorCodeConstants.PUBLISH_ERROR.name(),
 						ContentErrorMessageConstants.CONTENT_IMAGE_MIGRATION_ERROR + " | [Content Id: " + contentId
-								+ "]");
+								+ "]" + "::" + updateResp.getParams().getErr() + " :: " + updateResp.getParams().getErrmsg() + " :: "
+								+ updateResp.getResult());
 			}
 		} else {
 			throw new ServerException(ContentErrorCodeConstants.PUBLISH_ERROR.name(),
@@ -790,7 +775,7 @@ public class PublishFinalizer extends BaseFinalizer {
 						TelemetryManager.error("Content Body Update Failed During Publish. Error Code :" + response.getParams().getErr() + " | Error Message : " + response.getParams().getErrmsg() + " | Result : " + response.getResult());
 						throw new ServerException(ContentErrorCodeConstants.PUBLISH_ERROR.name(),
 								ContentErrorMessageConstants.CONTENT_BODY_MIGRATION_ERROR + " | [Content Id: " + contentId
-										+ "]");
+										+ "]" + response.getParams().getErrmsg() + " :: " + response.getParams().getErr() + " :: " + response.getResult());
 					}
 				}
 			}
@@ -801,7 +786,7 @@ public class PublishFinalizer extends BaseFinalizer {
 				TelemetryManager.error(response.getParams().getErrmsg() + " :: " + response.getParams().getErr() + " :: " + response.getResult());
 				throw new ServerException(ContentErrorCodeConstants.PUBLISH_ERROR.name(),
 						ContentErrorMessageConstants.CONTENT_IMAGE_MIGRATION_ERROR + " | [Content Id: " + contentId
-								+ "]");
+								+ "]" + response.getParams().getErrmsg() + " :: " + response.getParams().getErr() + " :: " + response.getResult());
 			}
 		}
 
@@ -1033,8 +1018,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 		return leafNodes;
 	}
-	
-	
+
 	private Map<String, Object> processChildren(Node node, List<Map<String, Object>> children) {
 		Map<String, Object> dataMap = new HashMap<>();
 		processChildren(children, dataMap);
@@ -1057,14 +1041,15 @@ public class PublishFinalizer extends BaseFinalizer {
 			Map<String, Object> content = getContentMap(node, children);
 			if(MapUtils.isEmpty(content))
 				return;
-			int leafCount = 0;
-			leafCount = getLeafNodeCount(content, leafCount);
+			int leafCount = getLeafNodeCount(content);
 			double totalCompressedSize = 0.0;
 			totalCompressedSize = getTotalCompressedSize(content, totalCompressedSize);
 			content.put(ContentAPIParams.leafNodesCount.name(), leafCount);
 			node.getMetadata().put(ContentAPIParams.leafNodesCount.name(), leafCount);
 			content.put(ContentAPIParams.totalCompressedSize.name(), totalCompressedSize);
 			node.getMetadata().put(ContentAPIParams.totalCompressedSize.name(), totalCompressedSize);
+			updateLeafNodeIds(node, content);
+
 
 			Map<String, Object> mimeTypeMap = new HashMap<>();
 			Map<String, Object> contentTypeMap = new HashMap<>();
@@ -1087,7 +1072,15 @@ public class PublishFinalizer extends BaseFinalizer {
 			node.getMetadata().put(ContentAPIParams.childNodes.name(), childNodes);
 		}
 	}
-	
+
+	private void updateLeafNodeIds(Node node, Map<String, Object> content) {
+        Set<String> leafNodeIds = new HashSet<>();
+        getLeafNodesIds(content, leafNodeIds);
+		if(CollectionUtils.isNotEmpty(leafNodeIds)){
+			node.getMetadata().put(ContentAPIParams.leafNodes.name(), new ArrayList<>(leafNodeIds));
+		}
+	}
+
 	private String convertToString(Object obj) throws Exception {
 		return mapper.writeValueAsString(obj);
 	}
@@ -1254,4 +1247,17 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 		return list;
 	}
+
+    private void getLeafNodesIds(Map<String, Object> data, Set<String> leafNodeIds) {
+        List<Map<String,Object>> children = (List<Map<String,Object>>)data.get("children");
+        if(CollectionUtils.isNotEmpty(children)) {
+            for(Map<String, Object> child : children) {
+                getLeafNodesIds(child, leafNodeIds);
+            }
+        } else {
+            if (!StringUtils.equalsIgnoreCase(COLLECTION_MIMETYPE, (String) data.get(ContentAPIParams.mimeType.name()))) {
+                leafNodeIds.add((String) data.get(ContentAPIParams.identifier.name()));
+            }
+        }
+    }
 }
