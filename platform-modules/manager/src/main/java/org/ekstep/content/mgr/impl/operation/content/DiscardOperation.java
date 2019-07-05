@@ -38,7 +38,7 @@ public class DiscardOperation extends BaseContentManager {
      */
     public Response discard(String contentId) throws Exception {
         Response response;
-        validateNullorInvalid(contentId, "Content Id");
+        validateNullorInvalid(contentId);
         Node imageNode = getNode(contentId, true);
         if (imageNode != null) {
             String objectType = imageNode.getObjectType();
@@ -90,18 +90,17 @@ public class DiscardOperation extends BaseContentManager {
 
     /**
      * Check if content id is blank or not
-     * @param contentValue
-     * @param contentName
+     * @param contentId
      * @throws Exception
      */
 
-    private void validateNullorInvalid(Object contentValue, String contentName) throws Exception {
-        if (RequestValidatorUtil.isEmptyOrNull(contentValue)) {
+    private void validateNullorInvalid(Object contentId) throws Exception {
+        if (RequestValidatorUtil.isEmptyOrNull(contentId)) {
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
-                    contentName + " can not be blank or null for contentId: " + contentValue);
+                    "Content Id can not be blank or null");
         }
-        if (StringUtils.endsWithIgnoreCase((String) contentValue, ".img")) {
-            throw new ClientException(ContentErrorCodes.ERR_INVALID_CONTENT_ID.name(), contentName + "shouldn't contain .img, for contentId:" + contentValue);
+        if (StringUtils.endsWithIgnoreCase((String) contentId, ".img")) {
+            throw new ClientException(ContentErrorCodes.ERR_INVALID_CONTENT_ID.name(), "ContentId: " + contentId + "shouldn't contain .img.");
         }
     }
 
