@@ -42,6 +42,8 @@ public abstract class BaseManager {
 
 	protected static final int DEFAULT_TTL = 24;
 	protected static final int DEFAULT_LIMIT = 50;
+	protected static final String TAXONOMY_ID = "domain";
+	protected static final String CONTENT_OBJECT_TYPE = "AssessmentItem";
 	
 	public Response getDataNode(String taxonomyId, String id) {
 		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
