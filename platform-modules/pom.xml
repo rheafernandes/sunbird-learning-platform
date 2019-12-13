@@ -28,7 +28,8 @@
 		<module>actors</module>
 		<module>content-manager</module>
 		<module>ekstep-framework</module>
-	</modules>
+        <module>pdf-generator</module>
+    </modules>
 
 	<dependencies>
 	</dependencies>
