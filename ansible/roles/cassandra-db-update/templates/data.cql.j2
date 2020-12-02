@@ -88,3 +88,10 @@ CREATE TABLE IF NOT EXISTS {{ category_keyspace_name }}.category_definition_data
     objectmetadata map<text, text>
 );
 
+CREATE KEYSPACE IF NOT EXISTS {{ question_keyspace_name }} WITH replication = {'class': 'NetworkTopologyStrategy', 'datacenter1': '2'}  AND durable_writes = true;
+
+CREATE TABLE IF NOT EXISTS {{ question_keyspace_name }}.question_data (
+    identifier text PRIMARY KEY,
+    body blob,
+    editorState blob,
+);
